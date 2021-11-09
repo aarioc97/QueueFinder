@@ -11,8 +11,8 @@ package csp_counter;
  */
 public class CSPCounter {
 
-    double[] oNum, oMax, utilityScale;
-    int avgUtility;
+    private double[] oNum, oMax, utilityScale;
+    private int avgUtility;
 
     public CSPCounter(int jmlOption) {
         this.oNum = new double[jmlOption];
