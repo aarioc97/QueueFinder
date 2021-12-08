@@ -112,12 +112,12 @@ public class GeneticAlgorithm {
             this.populasi.cariDuaKromosomTerbaik();
             this.selection(mobilKerja, mobilMasuk, matriksTipeOption);
 //            System.out.println("Dipilih gen ke-" + ga.populasi.idxTerbaik + " dan ke-" + ga.populasi.idxKeduaTerbaik);
-            if (crossoverRate <= 80) {
+            if (crossoverRate <= 60) {
 //                System.out.println("Crossover dijalankan");
                 this.crossover();
             }
 //            this.crossover();
-            if (mutationRate <= 15) {
+            if (mutationRate <= 5) {
 //                System.out.println("Mutation dijalankan");
                 this.mutation();
             }

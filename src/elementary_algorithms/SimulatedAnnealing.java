@@ -32,7 +32,7 @@ public class SimulatedAnnealing {
         //temperatur akan turun sesuai dengan selisih yang ditentukan
         //selisih penurunan temperatur adalah nilai random
         //untuk kasus ini, maksimal selisih adalah 10, minimalnya 1
-        this.selisihTemp = 20;
+        this.selisihTemp = 10;
 //                this.rn.nextInt(9) + 1 /*10*/;
 
         //Tentukan temperatur awal
