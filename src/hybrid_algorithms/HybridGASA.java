@@ -5,7 +5,6 @@
  */
 package hybrid_algorithms;
 
-import java.util.Random;
 import elementary_algorithms.GeneticAlgorithm;
 import elementary_components.Kromosom;
 import elementary_algorithms.SimulatedAnnealing;
@@ -16,13 +15,12 @@ import elementary_algorithms.SimulatedAnnealing;
  */
 public class HybridGASA {
 
-    //50% solusi terbaik terakhir dari GA dimasukkan ke SA
     public GeneticAlgorithm ga;
     public SimulatedAnnealing sa;
     public Kromosom[] initialPop;
     public Kromosom hasilTerbaik;
     private Kromosom[] kromTerbaikTerakhir, kromTerbaikSA;
-    private int timeout;
+    private final int timeout;
 
     public HybridGASA(Kromosom[] initialPop, int timeout) {
         this.initialPop = initialPop;
@@ -58,9 +56,9 @@ public class HybridGASA {
 
     private Kromosom cariKromosomHasilTerbaik() {
         Kromosom hasil = this.kromTerbaikSA[0];
-        for (int i = 0; i < this.kromTerbaikSA.length; i++) {
-            if (this.kromTerbaikSA[i].gagalDikerjakan < hasil.gagalDikerjakan) {
-                hasil = this.kromTerbaikSA[i];
+        for (Kromosom kromTerbaikSA1 : this.kromTerbaikSA) {
+            if (kromTerbaikSA1.gagalDikerjakan < hasil.gagalDikerjakan) {
+                hasil = kromTerbaikSA1;
             }
         }
         return hasil;

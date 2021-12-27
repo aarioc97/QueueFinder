@@ -52,8 +52,8 @@ public class Populasi {
 
     public void hitungFitness(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
 
-        for (int i = 0; i < this.kromosom.length; i++) {
-            this.kromosom[i].hitungFitnessKromosom(mobilKerja, mobilMasuk, matriksTipeOption);
+        for (Kromosom kromosom1 : this.kromosom) {
+            kromosom1.hitungFitnessKromosom(mobilKerja, mobilMasuk, matriksTipeOption);
         }
         cariDuaKromosomTerbaik();
     }

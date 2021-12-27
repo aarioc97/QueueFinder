@@ -20,7 +20,6 @@ public class GeneticAlgorithm {
     private int generationCount = 0;
 
     public void selection(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
-//        populasi.cariDuaKromosomTerbaik();
         this.populasi.hitungFitness(mobilKerja, mobilMasuk, matriksTipeOption);
         this.kromTerbaik = this.populasi.kromTerbaik;
         this.kromTerbaikKedua = this.populasi.kromTerbaikKedua;
@@ -70,7 +69,6 @@ public class GeneticAlgorithm {
                 counter--;
             }
         }
-
     }
 
     //Memasukkan anak terbaik ke dalam populasi
@@ -97,7 +95,6 @@ public class GeneticAlgorithm {
     public void getSolution(Kromosom[] initPop, int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
         this.populasi.kromosom = initPop;
         this.populasi.hitungFitness(mobilKerja, mobilMasuk, matriksTipeOption);
-//        System.out.println("Generasi ke-" + ga.generationCount + ", gagal dikerjakan: " + ga.populasi.jmlGagalKromosom);
 
         Random rnd = new Random();
         int crossoverRate = 0;
@@ -111,26 +108,17 @@ public class GeneticAlgorithm {
             this.generationCount++;
             this.populasi.cariDuaKromosomTerbaik();
             this.selection(mobilKerja, mobilMasuk, matriksTipeOption);
-//            System.out.println("Dipilih gen ke-" + ga.populasi.idxTerbaik + " dan ke-" + ga.populasi.idxKeduaTerbaik);
-            if (crossoverRate <= 60) {
-//                System.out.println("Crossover dijalankan");
+            if (crossoverRate <= 50) {
                 this.crossover();
             }
-//            this.crossover();
-            if (mutationRate <= 5) {
-//                System.out.println("Mutation dijalankan");
+            if (mutationRate <= 0) {
                 this.mutation();
             }
 
             this.masukkanAnakTerbaik(mobilKerja, mobilMasuk, matriksTipeOption);
             this.populasi.hitungFitness(mobilKerja, mobilMasuk, matriksTipeOption);
-//            System.out.println("Generasi ke-" + ga.generationCount + ", gagal dikerjakan: " + ga.populasi.jmlGagalKromosom);
 
             counter++;
         }
-
-//        System.out.println("\nUrutan terbaik ada di generasi ke-" + ga.generationCount);
-//        System.out.println("Jumlah mobil yang gagal dikerjakan: " + ga.populasi.getKromosomTerbaik().gagalDikerjakan);
-//        System.out.println("");
     }
 }

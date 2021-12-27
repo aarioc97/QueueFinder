@@ -12,13 +12,14 @@ import java.util.Random;
  * @author i15055
  */
 public class Kromosom {
-//variabel tipeMobil dibuat karena tidak mengambil langsung
+    //variabel tipeMobil dibuat karena tidak mengambil langsung
     //jmlTipe dari kelas QueueFinder
 
     public int gagalDikerjakan, delay;
     public int[] gen;
     public int[][] urutan;
-    private int[] tipeMobil, tempMasuk;
+    private final int[] tipeMobil;
+    private int[] tempMasuk;
 
     public Kromosom(int total, int[] prodPerTipe) {
         this.gen = new int[total];
@@ -45,7 +46,7 @@ public class Kromosom {
         }
     }
 
-//cari urutan mobil yang dapat / tidak dapat dikerjakan
+    //cari urutan mobil yang dapat / tidak dapat dikerjakan
     public void hitungFitnessKromosom(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
         this.gagalDikerjakan = 0;
         this.delay = 0;

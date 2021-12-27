@@ -5,7 +5,6 @@
  */
 package hybrid_algorithms;
 
-import java.util.Random;
 import elementary_algorithms.GeneticAlgorithm;
 import elementary_components.Kromosom;
 import elementary_algorithms.SimulatedAnnealing;
@@ -21,7 +20,7 @@ public class CyclicGASA {
     public Kromosom[] initialPop;
     public Kromosom hasilTerbaik;
     public Kromosom[] kromTerbaikTerakhir, kromTerbaikSA;
-    private int timeout, timeoutCyclic;
+    private final int timeout, timeoutCyclic;
 
     public CyclicGASA(Kromosom[] initialPop, int timeout, int timeoutCyclic) {
         this.initialPop = initialPop;
@@ -66,9 +65,9 @@ public class CyclicGASA {
 
     private Kromosom cariKromosomHasilTerbaik() {
         Kromosom hasil = this.kromTerbaikSA[0];
-        for (int i = 0; i < this.kromTerbaikSA.length; i++) {
-            if (this.kromTerbaikSA[i].gagalDikerjakan < hasil.gagalDikerjakan) {
-                hasil = this.kromTerbaikSA[i];
+        for (Kromosom kromTerbaikSA1 : this.kromTerbaikSA) {
+            if (kromTerbaikSA1.gagalDikerjakan < hasil.gagalDikerjakan) {
+                hasil = kromTerbaikSA1;
             }
         }
         return hasil;

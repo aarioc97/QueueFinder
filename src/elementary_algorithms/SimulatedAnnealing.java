@@ -17,7 +17,7 @@ public class SimulatedAnnealing {
 
     public Populasi populasi;
     public Kromosom initialSolution, neighborSolution;
-    private Random rn = new Random();
+    private final Random rn = new Random();
     private int initialTemp, selisihTemp, repetitionSch, selisihFitness;
 
     public void inisialisasiVariabel(Kromosom[] initPop) {
@@ -32,18 +32,17 @@ public class SimulatedAnnealing {
         //temperatur akan turun sesuai dengan selisih yang ditentukan
         //selisih penurunan temperatur adalah nilai random
         //untuk kasus ini, maksimal selisih adalah 10, minimalnya 1
-        this.selisihTemp = 10;
-//                this.rn.nextInt(9) + 1 /*10*/;
+        this.selisihTemp = 30;
 
         //Tentukan temperatur awal
         //temperatur awal adalah banyaknya kromosom di populasi
-        this.initialTemp = this.populasi.kromosom.length /*rn.nextInt(100) + 100*/ /*200*/;
+        this.initialTemp = this.populasi.kromosom.length;
 
         //Tentukan jadwal repetisi
         //yaitu banyaknya iterasi yang dilakukan untuk setiap penurunan temperatur
         //nilai jadwal repetisi ditentukan secara random
         //minimal 1 kali, maksimal banyaknya kromosom di populasi dikurangi 1
-        this.repetitionSch = this.rn.nextInt(this.populasi.kromosom.length - 1) + 1 /*50*/;
+        this.repetitionSch = this.rn.nextInt(this.populasi.kromosom.length - 1) + 1;
 
     }
 

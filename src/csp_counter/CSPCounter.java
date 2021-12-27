@@ -11,14 +11,14 @@ package csp_counter;
  */
 public class CSPCounter {
 
-    private double[] oNum, oMax, utilityScale;
-    private int avgUtility;
+    private final double[] oNum;
+    private final double[] oMax;
+    private final double[] utilityScale;
 
     public CSPCounter(int jmlOption) {
         this.oNum = new double[jmlOption];
         this.oMax = new double[jmlOption];
         this.utilityScale = new double[jmlOption];
-        this.avgUtility = 0;
     }
 
     private void countONum(int[] prodPerTipe, int[][] matriksTipeOption) {
