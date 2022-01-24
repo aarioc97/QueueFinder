@@ -19,13 +19,17 @@ public class CyclicGASA {
     public SimulatedAnnealing sa;
     public Kromosom[] initialPop;
     public Kromosom hasilTerbaik;
-    public Kromosom[] kromTerbaikTerakhir, kromTerbaikSA;
+    private double crossoverRate, mutationRate, acceptanceProbability;
+    private Kromosom[] kromTerbaikTerakhir, kromTerbaikSA;
     private final int timeout, timeoutCyclic;
 
-    public CyclicGASA(Kromosom[] initialPop, int timeout, int timeoutCyclic) {
+    public CyclicGASA(Kromosom[] initialPop, int timeout, int timeoutCyclic, double crossRate, double mutateRate, double accProb) {
         this.initialPop = initialPop;
         this.timeout = timeout;
         this.timeoutCyclic = timeoutCyclic;
+        this.crossoverRate = crossRate;
+        this.mutationRate = mutateRate;
+        this.acceptanceProbability = accProb;
     }
 
     public void solutionCyclic(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
@@ -35,8 +39,11 @@ public class CyclicGASA {
                 this.kromTerbaikTerakhir = new Kromosom[jmlKromDiambil];
 
                 for (int j = 0; j < this.timeout; j++) {
+                    //Nilai Default:
+                    //Crossover Rate: 50%
+                    //Mutation Rate: 5%
                     this.ga = new GeneticAlgorithm();
-                    this.ga.getSolution(initialPop, mobilKerja, mobilMasuk, matriksTipeOption);
+                    this.ga.getSolution(initialPop, mobilKerja, mobilMasuk, matriksTipeOption, this.crossoverRate, this.mutationRate);
 
                     if (j >= this.timeout - jmlKromDiambil) {
                         this.kromTerbaikTerakhir[j - (this.timeout - jmlKromDiambil)] = this.ga.populasi.kromTerbaik;
@@ -48,7 +55,7 @@ public class CyclicGASA {
                 this.kromTerbaikSA = new Kromosom[this.timeout];
                 for (int j = 0; j < this.timeout; j++) {
                     this.sa = new SimulatedAnnealing();
-                    sa.inisialisasiVariabel(this.kromTerbaikTerakhir);
+                    sa.inisialisasiVariabel(this.kromTerbaikTerakhir, this.acceptanceProbability);
                     sa.getSolution(mobilKerja, mobilMasuk, matriksTipeOption);
                     this.kromTerbaikSA[j] = this.sa.initialSolution;
 
@@ -68,6 +75,8 @@ public class CyclicGASA {
         for (Kromosom kromTerbaikSA1 : this.kromTerbaikSA) {
             if (kromTerbaikSA1.gagalDikerjakan < hasil.gagalDikerjakan) {
                 hasil = kromTerbaikSA1;
+            } else if (kromTerbaikSA1.gagalDikerjakan == 0) {
+                break;
             }
         }
         return hasil;

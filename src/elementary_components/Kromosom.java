@@ -16,33 +16,37 @@ public class Kromosom {
     //jmlTipe dari kelas QueueFinder
 
     public int gagalDikerjakan, delay;
-    public int[] gen;
+    public int[] kromosom;
+    //dimensi pertama: urutan, dimensi kedua: matriks tipe option
     public int[][] urutan;
-    private final int[] tipeMobil;
     private int[] tempMasuk;
+    private int[] idTipe;
 
     public Kromosom(int total, int[] prodPerTipe) {
-        this.gen = new int[total];
-        this.tipeMobil = new int[prodPerTipe.length];
-        for (int i = 0; i < this.tipeMobil.length; i++) {
-            this.tipeMobil[i] = i;
-        }
+        this.kromosom = new int[total];
+//        this.tipeMobil = new int[prodPerTipe.length];
+        this.idTipe = new int[total];
+//        for (int i = 0; i < this.tipeMobil.length; i++) {
+//            this.tipeMobil[i] = i;
+//        }
 
         int counter = 0;
-        for (int i = 0; i < this.tipeMobil.length; i++) {
+        for (int i = 0; i < prodPerTipe.length; i++) {
             for (int j = 0; j < prodPerTipe[i]; j++) {
-                this.gen[counter] = this.tipeMobil[i];
+//                this.kromosom[counter] = this.tipeMobil[i];
+                this.kromosom[counter] = counter;
+                this.idTipe[counter] = i;
                 counter++;
             }
         }
 
         //Fisher - Yates Shuffle Array Function
         Random rn = new Random();
-        for (int i = this.gen.length - 1; i > 0; i--) {
+        for (int i = this.kromosom.length - 1; i > 0; i--) {
             int index = rn.nextInt(i + 1);
-            int a = this.gen[index];
-            this.gen[index] = this.gen[i];
-            this.gen[i] = a;
+            int a = this.kromosom[index];
+            this.kromosom[index] = this.kromosom[i];
+            this.kromosom[i] = a;
         }
     }
 
@@ -51,11 +55,11 @@ public class Kromosom {
         this.gagalDikerjakan = 0;
         this.delay = 0;
 
-        this.urutan = new int[this.gen.length][matriksTipeOption[0].length];
+        this.urutan = new int[this.kromosom.length][matriksTipeOption[0].length];
 
         for (int i = 0; i < this.urutan.length; i++) {
-            for (int j = 0; j < matriksTipeOption[j].length - 1; j++) {
-                this.urutan[i][j] = matriksTipeOption[this.gen[i]][j];
+            for (int j = 0; j < matriksTipeOption[j].length; j++) {
+                this.urutan[i][j] = matriksTipeOption[this.idTipe[this.kromosom[i]]][j];
             }
         }
 

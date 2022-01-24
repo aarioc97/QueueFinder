@@ -17,6 +17,7 @@ public class GeneticAlgorithm {
 
     public Populasi populasi = new Populasi();
     public Kromosom kromTerbaik, kromTerbaikKedua;
+    private double crossoverRate, mutationRate;
     private int generationCount = 0;
 
     public void selection(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
@@ -29,14 +30,32 @@ public class GeneticAlgorithm {
         Random rn = new Random();
 
         //Cari crossover point secara random
-        int crossOverPoint = rn.nextInt(populasi.kromTerbaik.gen.length);
+        int crossOverPoint = rn.nextInt(populasi.kromTerbaik.kromosom.length);
 
-        //Tukar semua gen dari kedua kromosom terbaik
-        //dari gen awal kromosom hingga gen di crossover point
-        for (int i = 0; i < crossOverPoint; i++) {
-            int temp = this.kromTerbaik.gen[i];
-            this.kromTerbaik.gen[i] = this.kromTerbaikKedua.gen[i];
-            this.kromTerbaikKedua.gen[i] = temp;
+        //Modified Partially Mapped Crossover
+        for (int i = 0; i < this.kromTerbaik.kromosom.length; i++) {
+            boolean clear = false;
+            if (i < crossOverPoint) {
+                int temp = this.kromTerbaik.kromosom[i];
+                this.kromTerbaik.kromosom[i] = this.kromTerbaikKedua.kromosom[i];
+                this.kromTerbaikKedua.kromosom[i] = temp;
+            } else {
+                while (clear == false) {
+                    clear = true;
+                    for (int j = 0; j < crossOverPoint; j++) {
+                        if (this.kromTerbaik.kromosom[i] == this.kromTerbaik.kromosom[j]) {
+                            this.kromTerbaik.kromosom[i] = this.kromTerbaikKedua.kromosom[j];
+                            clear = false;
+                            break;
+                        }
+                        if (this.kromTerbaikKedua.kromosom[i] == this.kromTerbaikKedua.kromosom[j]) {
+                            this.kromTerbaikKedua.kromosom[i] = this.kromTerbaik.kromosom[j];
+                            clear = false;
+                            break;
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -47,25 +66,25 @@ public class GeneticAlgorithm {
         int pilihAnak = rn.nextInt(2);
 
         //Cari mutation point secara random untuk kromosom terbaik
-        int mutationPoint = rn.nextInt(populasi.kromTerbaik.gen.length);
+        int mutationPoint = rn.nextInt(populasi.kromTerbaik.kromosom.length);
         int counter = mutationPoint;
 
         if (pilihAnak == 0) {
             //Putar balik urutan gen
             //dari gen awal kromosom hingga gen di mutation point
             for (int i = 0; i < mutationPoint / 2 + 1; i++) {
-                int temp = this.kromTerbaik.gen[i];
-                this.kromTerbaik.gen[i] = this.kromTerbaik.gen[counter];
-                this.kromTerbaik.gen[counter] = temp;
+                int temp = this.kromTerbaik.kromosom[i];
+                this.kromTerbaik.kromosom[i] = this.kromTerbaik.kromosom[counter];
+                this.kromTerbaik.kromosom[counter] = temp;
                 counter--;
             }
         } else if (pilihAnak == 1) {
             //Putar balik urutan gen
             //dari gen awal kromosom hingga gen di mutation point
             for (int i = 0; i < mutationPoint / 2 + 1; i++) {
-                int temp = this.kromTerbaikKedua.gen[i];
-                this.kromTerbaikKedua.gen[i] = this.kromTerbaikKedua.gen[counter];
-                this.kromTerbaikKedua.gen[counter] = temp;
+                int temp = this.kromTerbaikKedua.kromosom[i];
+                this.kromTerbaikKedua.kromosom[i] = this.kromTerbaikKedua.kromosom[counter];
+                this.kromTerbaikKedua.kromosom[counter] = temp;
                 counter--;
             }
         }
@@ -92,32 +111,45 @@ public class GeneticAlgorithm {
         }
     }
 
-    public void getSolution(Kromosom[] initPop, int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
+    public void getSolution(Kromosom[] initPop, int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption, double crossRate, double mutateRate) {
         this.populasi.kromosom = initPop;
         this.populasi.hitungFitness(mobilKerja, mobilMasuk, matriksTipeOption);
 
-        Random rnd = new Random();
-        int crossoverRate = 0;
-        int mutationRate = 0;
+        //crossoverRate dan mutationRate dalam satuan persen
+        //Persentase menunjukkan berapa kali crossover dan mutation dilakukan
+        //Berapa kali dilakukan = banyaknya kromosom dalam populasi yang mengalaminya
+        this.crossoverRate = crossRate;
+        this.mutationRate = mutateRate;
+        int crossoverCounter = 0;
+        int mutationCounter = 0;
 
         int counter = 0;
         while (this.populasi.jmlGagalKromosom > 0 && counter < 1000) {
 
-            crossoverRate = rnd.nextInt(99) + 1;
-            mutationRate = rnd.nextInt(99) + 1;
+            //Jika memenuhi rate, crossover atau mutation dilakukan
+            //Counter untuk keduanya untuk menghitung berapa kali dilakukan
             this.generationCount++;
             this.populasi.cariDuaKromosomTerbaik();
             this.selection(mobilKerja, mobilMasuk, matriksTipeOption);
-            if (crossoverRate <= 50) {
+
+            double maxCrossover = (crossoverRate / 100) * (double) this.populasi.kromosom.length;
+            double maxMutation = (mutationRate / 100) * (double) this.populasi.kromosom.length;
+            
+            if (crossoverCounter < maxCrossover) {
                 this.crossover();
+                crossoverCounter++;
             }
-            if (mutationRate <= 0) {
+            if (mutationCounter < maxMutation) {
                 this.mutation();
+                mutationCounter++;
             }
 
+            //Masukkan kedua anak terbaik ke dalam populasi
+            //lalu hitung fitness populasi
             this.masukkanAnakTerbaik(mobilKerja, mobilMasuk, matriksTipeOption);
             this.populasi.hitungFitness(mobilKerja, mobilMasuk, matriksTipeOption);
 
+            //Counter untuk membatasi iterasi
             counter++;
         }
     }

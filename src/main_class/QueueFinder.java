@@ -35,6 +35,54 @@ public class QueueFinder {
     public static void main(String[] args) {
 
         Scanner scan = new Scanner(System.in);
+        CSP csp = new CSP();
+        System.out.println("Variabel uji:");
+        System.out.print("    Crossover Rate (Min = 0, Max = 100, Default = 75): ");
+        //DEFAULT: 50
+        try {
+            csp.crossoverRate = scan.nextDouble();
+            if (csp.crossoverRate > 100) {
+                System.out.println("CROSSOVER RATE DI ATAS BATAS MAKSIMAL");
+                System.exit(0);
+            } else if(csp.crossoverRate < 0){
+                System.out.println("HANYA MENERIMA BILANGAN POSITIF");
+                System.exit(0);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("HANYA MENERIMA MASUKAN ANGKA");
+            System.exit(0);
+        }
+        System.out.print("    Mutation Rate (Min = 0, Max = 1, Default = 0.5): ");
+        //DEFAULT: 0.5
+        try {
+            csp.mutationRate = scan.nextDouble();
+            if (csp.mutationRate > 1) {
+                System.out.println("MUTATION RATE DI ATAS BATAS MAKSIMAL");
+                System.exit(0);
+            } else if(csp.mutationRate < 0){
+                System.out.println("HANYA MENERIMA BILANGAN POSITIF");
+                System.exit(0);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("HANYA MENERIMA MASUKAN ANGKA");
+            System.exit(0);
+        }
+        System.out.print("    Acceptance Probability (Min = 0.0, Max = 1.0, Default = 0.8): ");
+        //DEFAULT: 0.8
+        try {
+            csp.acceptanceProbability = scan.nextDouble();
+            if (csp.acceptanceProbability > 1.0) {
+                System.out.println("ACCEPTANCE PROBABILITY DI ATAS BATAS MAKSIMAL");
+                System.exit(0);
+            } else if(csp.acceptanceProbability < 0){
+                System.out.println("HANYA MENERIMA BILANGAN POSITIF");
+                System.exit(0);
+            }
+        } catch (InputMismatchException e) {
+            System.out.println("HANYA MENERIMA MASUKAN ANGKA");
+            System.exit(0);
+        }
+        System.out.println("");
         System.out.println("Terdapat dua format input dan output");
         System.out.println("1. Manual (console)");
         System.out.println("2. Otomatis (file)");
@@ -48,8 +96,6 @@ public class QueueFinder {
                 case 1: {
                     System.out.println("");
                     System.out.println("Format manual (via console)");
-                    CSP csp = new CSP();
-                    csp.waktuProgramStart = System.currentTimeMillis();
                     System.out.print("Total mobil yang diproduksi: ");
                     csp.totalMobil = scan.nextInt();
                     if (csp.totalMobil <= 0) {
@@ -129,6 +175,7 @@ public class QueueFinder {
                         }
                     }
                     System.out.println("");
+
                     //Perhitungan Dasar CSP
                     CSPCounter cspCount = new CSPCounter(csp.jmlOption);
                     String avgUtil = cspCount.countCSP(csp.produksiPerTipe, csp.matriksTipeOption, csp.totalMobil, csp.mobilKerja, csp.mobilMasuk);
@@ -139,100 +186,99 @@ public class QueueFinder {
                     System.out.print("Berdasarkan perhitungan CSP, average utility dari soal tersebut adalah " + avgUtil);
                     System.out.println("");
                     //jalankan sisanya dengan genetic algorithm dan simulated annealing
+
+                    //Nilai Default:
+                    //Crossover Rate: 50%
+                    //Mutation Rate: 5%
                     Populasi pop = new Populasi();
+                    Populasi popInput = new Populasi();
                     pop.inisialisasiPopulasi(1000, csp.totalMobil, csp.produksiPerTipe);
-                    Kromosom[] initPop = pop.kromosom;
+                    Kromosom[] initPop;
+
                     System.out.println("GENETIC ALGORITHM");
                     //Genetic Algorithm
-                    csp.gaStart = System.currentTimeMillis();
                     GeneticAlgorithm ga = new GeneticAlgorithm();
-                    ga.getSolution(initPop, csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-                    csp.gaStop = System.currentTimeMillis();
+                    popInput = pop;
+                    initPop = popInput.kromosom;
+                    ga.getSolution(initPop, csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption, csp.crossoverRate, csp.mutationRate);
                     System.out.println("Urutan yang melebihi capacity constraint: " + ga.populasi.kromTerbaik.gagalDikerjakan);
                     System.out.println("Tundaan kerja: " + ga.populasi.kromTerbaik.delay);
                     System.out.println("Matriks urutan: ");
-                    for (int i = 0; i < ga.populasi.kromTerbaik.gen.length; i++) {
+                    for (int i = 0; i < ga.populasi.kromTerbaik.kromosom.length; i++) {
                         for (int j = 0; j < ga.populasi.kromTerbaik.urutan[i].length; j++) {
                             System.out.print(ga.populasi.kromTerbaik.urutan[i][j] + " ");
                         }
                         System.out.println("");
                     }
                     System.out.println("");
+
                     System.out.println("SIMULATED ANNEALING");
                     //Simulated Annealing
-                    csp.saStart = System.currentTimeMillis();
                     SimulatedAnnealing sa = new SimulatedAnnealing();
-                    sa.inisialisasiVariabel(initPop);
+                    popInput = pop;
+                    initPop = popInput.kromosom;
+                    sa.inisialisasiVariabel(initPop, csp.acceptanceProbability);
                     sa.getSolution(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-                    csp.saStop = System.currentTimeMillis();
                     System.out.println("Urutan yang melebihi capacity constraint: " + sa.initialSolution.gagalDikerjakan);
                     System.out.println("Tundaan kerja: " + sa.initialSolution.delay);
                     System.out.println("Matriks urutan: ");
-                    for (int i = 0; i < sa.initialSolution.gen.length; i++) {
+                    for (int i = 0; i < sa.initialSolution.kromosom.length; i++) {
                         for (int j = 0; j < sa.initialSolution.urutan[i].length; j++) {
                             System.out.print(sa.initialSolution.urutan[i][j] + " ");
                         }
                         System.out.println("");
                     }
                     System.out.println("");
+
                     System.out.println("HYBRID GA-SA");
                     //Hybrid GA-SA
-                    csp.gasaStart = System.currentTimeMillis();
-                    HybridGASA gasa = new HybridGASA(initPop, 500);
+                    popInput = pop;
+                    initPop = popInput.kromosom;
+                    HybridGASA gasa = new HybridGASA(initPop, 500, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                     gasa.solutionGASA(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-                    csp.gasaStop = System.currentTimeMillis();
                     System.out.println("Urutan yang melebihi capacity constraint: " + gasa.hasilTerbaik.gagalDikerjakan);
                     System.out.println("Tundaan kerja: " + gasa.hasilTerbaik.delay);
                     System.out.println("Matriks urutan: ");
-                    for (int i = 0; i < gasa.hasilTerbaik.gen.length; i++) {
+                    for (int i = 0; i < gasa.hasilTerbaik.kromosom.length; i++) {
                         for (int j = 0; j < gasa.hasilTerbaik.urutan[i].length; j++) {
                             System.out.print(gasa.hasilTerbaik.urutan[i][j] + " ");
                         }
                         System.out.println("");
                     }
                     System.out.println("");
+
                     System.out.println("HYBRID SA-GA");
                     //Hybrid SA-GA
-                    csp.sagaStart = System.currentTimeMillis();
-                    HybridSAGA saga = new HybridSAGA(initPop, 500);
+                    popInput = pop;
+                    initPop = popInput.kromosom;
+                    HybridSAGA saga = new HybridSAGA(initPop, 500, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                     saga.solutionSAGA(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-                    csp.sagaStop = System.currentTimeMillis();
                     System.out.println("Urutan yang melebihi capacity constraint: " + saga.hasilTerbaik.gagalDikerjakan);
                     System.out.println("Tundaan kerja: " + saga.hasilTerbaik.delay);
                     System.out.println("Matriks urutan: ");
-                    for (int i = 0; i < saga.hasilTerbaik.gen.length; i++) {
+                    for (int i = 0; i < saga.hasilTerbaik.kromosom.length; i++) {
                         for (int j = 0; j < saga.hasilTerbaik.urutan[i].length; j++) {
                             System.out.print(saga.hasilTerbaik.urutan[i][j] + " ");
                         }
                         System.out.println("");
                     }
                     System.out.println("");
+
                     System.out.println("CYCLIC GA-SA");
                     //Cyclic GA-SA
-                    csp.cyclicStart = System.currentTimeMillis();
-                    CyclicGASA cyclic = new CyclicGASA(initPop, 500, 10);
+                    popInput = pop;
+                    initPop = popInput.kromosom;
+                    CyclicGASA cyclic = new CyclicGASA(initPop, 500, 10, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                     cyclic.solutionCyclic(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-                    csp.cyclicStop = System.currentTimeMillis();
                     System.out.println("Urutan yang melebihi capacity constraint: " + cyclic.hasilTerbaik.gagalDikerjakan);
                     System.out.println("Tundaan kerja: " + cyclic.hasilTerbaik.delay);
                     System.out.println("Matriks urutan: ");
-                    for (int i = 0; i < cyclic.hasilTerbaik.gen.length; i++) {
+                    for (int i = 0; i < cyclic.hasilTerbaik.kromosom.length; i++) {
                         for (int j = 0; j < cyclic.hasilTerbaik.urutan[i].length; j++) {
                             System.out.print(cyclic.hasilTerbaik.urutan[i][j] + " ");
                         }
                         System.out.println("");
                     }
-                    System.out.println("");
-                    System.out.println("Waktu untuk mengerjakan: ");
-                    System.out.println("Genetic Algorithm: " + csp.countGATime() + " detik");
-                    System.out.println("Simulated Annealing: " + csp.countSATime() + " detik");
-                    System.out.println("Hybrid GA-SA: " + csp.countGASATime() + " detik");
-                    System.out.println("Hybrid SA-GA: " + csp.countSAGATime() + " detik");
-                    System.out.println("Cyclic GA-SA: " + csp.countCyclicTime() + " detik");
-                    System.out.println("");
-                    System.out.println("Total waktu: " + csp.countAlgorithmTime() + " detik");
-                    csp.waktuProgramStop = System.currentTimeMillis();
-                    System.out.println("Total waktu yang dihabiskan program: " + csp.countOverallTime() + " detik");
                     break;
                 }
                 case 2: {
@@ -257,8 +303,6 @@ public class QueueFinder {
                             System.out.println("HANYA INPUT 1 ATAU 2");
                             System.exit(0);
                     }
-                    CSP csp = new CSP();
-                    csp.waktuProgramStart = System.currentTimeMillis();
                     String[] baris;
                     String line = "";
                     String separator = " ";
@@ -379,7 +423,13 @@ public class QueueFinder {
                             }
                             System.out.println("");
 
+                            //Nilai Default:
+                            //Crossover Rate: 50%
+                            //Mutation Rate: 5%
                             try {
+                                System.out.println("Crossover Rate: " + csp.crossoverRate);
+                                System.out.println("Mutation Rate: " + csp.mutationRate);
+                                System.out.println("");
                                 System.out.println("Program sedang menjalankan: ");
                                 System.out.println("--Perhitungan Dasar CSP--");
                                 CSPCounter cspCount = new CSPCounter(csp.jmlOption);
@@ -396,17 +446,17 @@ public class QueueFinder {
                                 bw.newLine();
 
                                 Populasi pop = new Populasi();
+                                Populasi popInput = new Populasi();
                                 pop.inisialisasiPopulasi(50, csp.totalMobil, csp.produksiPerTipe);
-                                Kromosom[] initPop = pop.kromosom;
+                                Kromosom[] initPop;
 
                                 System.out.println("--Genetic Algorithm--");
                                 //Genetic Algorithm
-                                csp.gaStart = System.currentTimeMillis();
 
                                 GeneticAlgorithm ga = new GeneticAlgorithm();
-                                ga.getSolution(initPop, csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-
-                                csp.gaStop = System.currentTimeMillis();
+                                popInput = pop;
+                                initPop = popInput.kromosom;
+                                ga.getSolution(initPop, csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption, csp.crossoverRate, csp.mutationRate);
 
                                 bw.newLine();
                                 bw.write("GENETIC ALGORITHM");
@@ -415,26 +465,25 @@ public class QueueFinder {
                                 bw.newLine();
                                 bw.write("Tundaan kerja: " + ga.populasi.kromTerbaik.delay);
                                 bw.newLine();
-                                bw.write("Matriks urutan: ");
-                                bw.newLine();
-                                for (int i = 0; i < ga.populasi.kromTerbaik.gen.length; i++) {
-                                    for (int j = 0; j < ga.populasi.kromTerbaik.urutan[i].length; j++) {
-                                        bw.write(ga.populasi.kromTerbaik.urutan[i][j] + " ");
-                                    }
-                                    bw.newLine();
-                                }
+//                                bw.write("Matriks urutan: ");
+//                                bw.newLine();
+//                                for (int i = 0; i < ga.populasi.kromTerbaik.kromosom.length; i++) {
+//                                    for (int j = 0; j < ga.populasi.kromTerbaik.urutan[i].length; j++) {
+//                                        bw.write(ga.populasi.kromTerbaik.urutan[i][j] + " ");
+//                                    }
+//                                    bw.newLine();
+//                                }
 
                                 bw.newLine();
 
                                 System.out.println("--Simulated Annealing--");
                                 //Simulated Annealing
-                                csp.saStart = System.currentTimeMillis();
 
                                 SimulatedAnnealing sa = new SimulatedAnnealing();
-                                sa.inisialisasiVariabel(initPop);
+                                popInput = pop;
+                                initPop = popInput.kromosom;
+                                sa.inisialisasiVariabel(initPop, csp.acceptanceProbability);
                                 sa.getSolution(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-
-                                csp.saStop = System.currentTimeMillis();
 
                                 bw.write("SIMULATED ANNEALING");
                                 bw.newLine();
@@ -442,25 +491,24 @@ public class QueueFinder {
                                 bw.newLine();
                                 bw.write("Tundaan kerja: " + sa.initialSolution.delay);
                                 bw.newLine();
-                                bw.write("Matriks urutan: ");
-                                bw.newLine();
-                                for (int i = 0; i < sa.initialSolution.gen.length; i++) {
-                                    for (int j = 0; j < sa.initialSolution.urutan[i].length; j++) {
-                                        bw.write(sa.initialSolution.urutan[i][j] + " ");
-                                    }
-                                    bw.newLine();
-                                }
+//                                bw.write("Matriks urutan: ");
+//                                bw.newLine();
+//                                for (int i = 0; i < sa.initialSolution.kromosom.length; i++) {
+//                                    for (int j = 0; j < sa.initialSolution.urutan[i].length; j++) {
+//                                        bw.write(sa.initialSolution.urutan[i][j] + " ");
+//                                    }
+//                                    bw.newLine();
+//                                }
 
                                 bw.newLine();
 
                                 System.out.println("--Hybrid GA-SA--");
                                 //Hybrid GA-SA
-                                csp.gasaStart = System.currentTimeMillis();
 
-                                HybridGASA gasa = new HybridGASA(initPop, 25);
+                                popInput = pop;
+                                initPop = popInput.kromosom;
+                                HybridGASA gasa = new HybridGASA(initPop, 25, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                                 gasa.solutionGASA(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-
-                                csp.gasaStop = System.currentTimeMillis();
 
                                 bw.write("HYBRID GA-SA");
                                 bw.newLine();
@@ -468,25 +516,24 @@ public class QueueFinder {
                                 bw.newLine();
                                 bw.write("Tundaan kerja: " + gasa.hasilTerbaik.delay);
                                 bw.newLine();
-                                bw.write("Matriks urutan: ");
-                                bw.newLine();
-                                for (int i = 0; i < gasa.hasilTerbaik.gen.length; i++) {
-                                    for (int j = 0; j < gasa.hasilTerbaik.urutan[i].length; j++) {
-                                        bw.write(gasa.hasilTerbaik.urutan[i][j] + " ");
-                                    }
-                                    bw.newLine();
-                                }
+//                                bw.write("Matriks urutan: ");
+//                                bw.newLine();
+//                                for (int i = 0; i < gasa.hasilTerbaik.kromosom.length; i++) {
+//                                    for (int j = 0; j < gasa.hasilTerbaik.urutan[i].length; j++) {
+//                                        bw.write(gasa.hasilTerbaik.urutan[i][j] + " ");
+//                                    }
+//                                    bw.newLine();
+//                                }
 
                                 bw.newLine();
 
                                 System.out.println("--Hybrid SA-GA--");
                                 //Hybrid SA-GA
-                                csp.sagaStart = System.currentTimeMillis();
 
-                                HybridSAGA saga = new HybridSAGA(initPop, 25);
+                                popInput = pop;
+                                initPop = popInput.kromosom;
+                                HybridSAGA saga = new HybridSAGA(initPop, 25, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                                 saga.solutionSAGA(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-
-                                csp.sagaStop = System.currentTimeMillis();
 
                                 bw.write("HYBRID SA-GA");
                                 bw.newLine();
@@ -494,25 +541,24 @@ public class QueueFinder {
                                 bw.newLine();
                                 bw.write("Tundaan kerja: " + saga.hasilTerbaik.delay);
                                 bw.newLine();
-                                bw.write("Matriks urutan: ");
-                                bw.newLine();
-                                for (int i = 0; i < saga.hasilTerbaik.gen.length; i++) {
-                                    for (int j = 0; j < saga.hasilTerbaik.urutan[i].length; j++) {
-                                        bw.write(saga.hasilTerbaik.urutan[i][j] + " ");
-                                    }
-                                    bw.newLine();
-                                }
+//                                bw.write("Matriks urutan: ");
+//                                bw.newLine();
+//                                for (int i = 0; i < saga.hasilTerbaik.kromosom.length; i++) {
+//                                    for (int j = 0; j < saga.hasilTerbaik.urutan[i].length; j++) {
+//                                        bw.write(saga.hasilTerbaik.urutan[i][j] + " ");
+//                                    }
+//                                    bw.newLine();
+//                                }
 
                                 bw.newLine();
 
                                 System.out.println("--Cyclic GA-SA--");
                                 //Cyclic GA-SA
-                                csp.cyclicStart = System.currentTimeMillis();
 
-                                CyclicGASA cyclic = new CyclicGASA(initPop, 25, 10);
+                                popInput = pop;
+                                initPop = popInput.kromosom;
+                                CyclicGASA cyclic = new CyclicGASA(initPop, 25, 10, csp.crossoverRate, csp.mutationRate, csp.acceptanceProbability);
                                 cyclic.solutionCyclic(csp.mobilKerja, csp.mobilMasuk, csp.matriksTipeOption);
-
-                                csp.cyclicStop = System.currentTimeMillis();
 
                                 bw.write("CYCLIC GA-SA");
                                 bw.newLine();
@@ -520,27 +566,15 @@ public class QueueFinder {
                                 bw.newLine();
                                 bw.write("Tundaan kerja: " + cyclic.hasilTerbaik.delay);
                                 bw.newLine();
-                                bw.write("Matriks urutan: ");
-                                bw.newLine();
-                                for (int i = 0; i < cyclic.hasilTerbaik.gen.length; i++) {
-                                    for (int j = 0; j < cyclic.hasilTerbaik.urutan[i].length; j++) {
-                                        bw.write(cyclic.hasilTerbaik.urutan[i][j] + " ");
-                                    }
-                                    bw.newLine();
-                                }
+//                                bw.write("Matriks urutan: ");
+//                                bw.newLine();
+//                                for (int i = 0; i < cyclic.hasilTerbaik.kromosom.length; i++) {
+//                                    for (int j = 0; j < cyclic.hasilTerbaik.urutan[i].length; j++) {
+//                                        bw.write(cyclic.hasilTerbaik.urutan[i][j] + " ");
+//                                    }
+//                                    bw.newLine();
+//                                }
 
-                                System.out.println("");
-
-                                System.out.println("Waktu untuk mengerjakan: ");
-                                System.out.println("Genetic Algorithm: " + csp.countGATime() + " detik");
-                                System.out.println("Simulated Annealing: " + csp.countSATime() + " detik");
-                                System.out.println("Hybrid GA-SA: " + csp.countGASATime() + " detik");
-                                System.out.println("Hybrid SA-GA: " + csp.countSAGATime() + " detik");
-                                System.out.println("Cyclic GA-SA: " + csp.countCyclicTime() + " detik");
-                                System.out.println("");
-                                System.out.println("Total waktu: " + csp.countAlgorithmTime() + " detik");
-
-//                    bw.close();
                                 System.out.println("");
                                 System.out.println("File hasil (hasilprogram.txt) sudah tertulis.");
 
@@ -566,8 +600,6 @@ public class QueueFinder {
                     } catch (NullPointerException non) {
                         System.out.println("INPUT TIDAK LENGKAP");
                     }
-                    csp.waktuProgramStop = System.currentTimeMillis();
-                    System.out.println("Total waktu yang dihabiskan program: " + csp.countOverallTime() + " detik");
                     break;
                 }
                 default:
@@ -589,34 +621,6 @@ class CSP {
     public int[] mobilKerja, mobilMasuk, produksiPerTipe;
     public int[][] matriksTipeOption;
     public String[] tipeMobil;
-    public double waktuProgramStart, waktuProgramStop, gaStart, gaStop,
-            saStart, saStop, gasaStart, gasaStop, sagaStart, sagaStop, cyclicStart, cyclicStop;
+    public double crossoverRate, mutationRate, acceptanceProbability;
 
-    public double countGATime() {
-        return (this.gaStop - this.gaStart) / 1000;
-    }
-
-    public double countSATime() {
-        return (this.saStop - this.saStart) / 1000;
-    }
-
-    public double countGASATime() {
-        return (this.gasaStop - this.gasaStart) / 1000;
-    }
-
-    public double countSAGATime() {
-        return (this.sagaStop - this.sagaStart) / 1000;
-    }
-
-    public double countCyclicTime() {
-        return (this.cyclicStop - this.cyclicStart) / 1000;
-    }
-
-    public double countAlgorithmTime() {
-        return (this.cyclicStop - this.gaStart) / 1000;
-    }
-
-    public double countOverallTime() {
-        return (this.waktuProgramStop - this.waktuProgramStart) / 1000;
-    }
 }

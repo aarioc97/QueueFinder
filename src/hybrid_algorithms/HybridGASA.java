@@ -19,12 +19,16 @@ public class HybridGASA {
     public SimulatedAnnealing sa;
     public Kromosom[] initialPop;
     public Kromosom hasilTerbaik;
+    private double crossoverRate, mutationRate, acceptanceProbability;
     private Kromosom[] kromTerbaikTerakhir, kromTerbaikSA;
     private final int timeout;
 
-    public HybridGASA(Kromosom[] initialPop, int timeout) {
+    public HybridGASA(Kromosom[] initialPop, int timeout, double crossRate, double mutateRate, double accProb) {
         this.initialPop = initialPop;
         this.timeout = timeout;
+        this.crossoverRate = crossRate;
+        this.mutationRate = mutateRate;
+        this.acceptanceProbability = accProb;
     }
 
     public void solutionGASA(int[] mobilKerja, int[] mobilMasuk, int[][] matriksTipeOption) {
@@ -33,7 +37,8 @@ public class HybridGASA {
 
         for (int i = 0; i < this.timeout; i++) {
             this.ga = new GeneticAlgorithm();
-            this.ga.getSolution(initialPop, mobilKerja, mobilMasuk, matriksTipeOption);
+//            System.out.println(this.crossoverRate + " " + this.mutationRate);
+            this.ga.getSolution(initialPop, mobilKerja, mobilMasuk, matriksTipeOption, this.crossoverRate, this.mutationRate);
 
             if (i >= this.timeout - jmlKromDiambil) {
                 this.kromTerbaikTerakhir[i - (this.timeout - jmlKromDiambil)] = this.ga.populasi.kromTerbaik;
@@ -45,7 +50,7 @@ public class HybridGASA {
             this.kromTerbaikSA = new Kromosom[this.timeout];
             for (int i = 0; i < this.timeout; i++) {
                 this.sa = new SimulatedAnnealing();
-                this.sa.inisialisasiVariabel(this.kromTerbaikTerakhir);
+                this.sa.inisialisasiVariabel(this.kromTerbaikTerakhir, this.acceptanceProbability);
                 this.sa.getSolution(mobilKerja, mobilMasuk, matriksTipeOption);
                 this.kromTerbaikSA[i] = this.sa.initialSolution;
             }
@@ -59,6 +64,8 @@ public class HybridGASA {
         for (Kromosom kromTerbaikSA1 : this.kromTerbaikSA) {
             if (kromTerbaikSA1.gagalDikerjakan < hasil.gagalDikerjakan) {
                 hasil = kromTerbaikSA1;
+            } else if (hasil.gagalDikerjakan == 0) {
+                break;
             }
         }
         return hasil;

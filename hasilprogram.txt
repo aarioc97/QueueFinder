@@ -1,0 +1,48 @@
+Soal ke-1
+CAR SEQUENCING PROBLEM
+Berdasarkan perhitungan CSP, average utility dari soal tersebut adalah 1.00
+
+GENETIC ALGORITHM
+Urutan yang melebihi capacity constraint: 4
+Tundaan kerja: 12
+
+SIMULATED ANNEALING
+Urutan yang melebihi capacity constraint: 4
+Tundaan kerja: 12
+
+HYBRID GA-SA
+Urutan yang melebihi capacity constraint: 0
+Tundaan kerja: 0
+
+HYBRID SA-GA
+Urutan yang melebihi capacity constraint: 0
+Tundaan kerja: 0
+
+CYCLIC GA-SA
+Urutan yang melebihi capacity constraint: 0
+Tundaan kerja: 0
+
+Soal ke-2
+CAR SEQUENCING PROBLEM
+Berdasarkan perhitungan CSP, average utility dari soal tersebut adalah 0.86
+
+GENETIC ALGORITHM
+Urutan yang melebihi capacity constraint: 1
+Tundaan kerja: 3
+
+SIMULATED ANNEALING
+Urutan yang melebihi capacity constraint: 2
+Tundaan kerja: 5
+
+HYBRID GA-SA
+Urutan yang melebihi capacity constraint: 4
+Tundaan kerja: 9
+
+HYBRID SA-GA
+Urutan yang melebihi capacity constraint: 4
+Tundaan kerja: 10
+
+CYCLIC GA-SA
+Urutan yang melebihi capacity constraint: 3
+Tundaan kerja: 8
+
